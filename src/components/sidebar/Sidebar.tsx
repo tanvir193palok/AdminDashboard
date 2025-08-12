@@ -8,7 +8,7 @@ export default function Sidebar() {
   const menu = [{ name: "Dashboard", icon: <FiHome /> }];
 
   return (
-    <div className="bg-white shadow-lg px-4">
+    <div className="bg-white px-4">
       <div className="flex gap-2 3xl:gap-3 py-2 mb-4 3xl:py-3">
         <img src={logo} alt="logo" className="h-14 w-14" />
         <div className="flex flex-col justify-center">

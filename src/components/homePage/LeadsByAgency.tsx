@@ -71,7 +71,6 @@ const LeadsByAgency = () => {
       <select className="absolute top-5 right-5 border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring focus:ring-blue-300">
         <option>All Time</option>
         <option>Last Month</option>
-        <option>Last Week</option>
       </select>
 
       <ResponsiveContainer width="100%" height="90%">
