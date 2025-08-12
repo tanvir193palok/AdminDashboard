@@ -1,7 +1,14 @@
+import Header from "../components/Header";
+import StatsCards from "../components/homePage/StatsCards";
+
 const Homepage = () => {
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold">home page</h1>
+    <div className="">
+      <Header />
+      <div className="p-4">
+        <p className="text-lg md:text-2xl 2xl:text-[30px] font-bold">Dashboard</p>
+        <StatsCards />
+      </div>
     </div>
   );
 };
