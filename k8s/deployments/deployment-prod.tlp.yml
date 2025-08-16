@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bindrocket-admin-frontend-prod
+  namespace: prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bindrocket-admin-frontend-prod
+  template:
+    metadata:
+      labels:
+        app: bindrocket-admin-frontend-prod
+    spec:
+      nodeSelector:
+        role: worker
+      containers:
+        - name: bindrocket-admin-frontend-prod
+          image: ${ECR_REPOSITORY}/${BINDROCKET_ADMIN_FRONTEND_PROD_IMAGE}:BUILD_NUMBER_PLACEHOLDER
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bindrocket-admin-frontend-prod
+  namespace: prod
+  labels:
+    app: bindrocket-admin-frontend-prod
+spec:
+  selector:
+    app: bindrocket-admin-frontend-prod
+  ports:
+    - name: backend
+      port: 3000
+      targetPort: 80
+  type: ClusterIP
