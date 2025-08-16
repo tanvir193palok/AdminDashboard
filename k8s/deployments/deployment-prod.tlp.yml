@@ -20,7 +20,7 @@ spec:
           image: ${ECR_REPOSITORY}/${BINDROCKET_ADMIN_FRONTEND_PROD_IMAGE}:BUILD_NUMBER_PLACEHOLDER
           imagePullPolicy: Always
           ports:
-            - containerPort: 80"
+            - containerPort: 80
 ---
 apiVersion: v1
 kind: Service
