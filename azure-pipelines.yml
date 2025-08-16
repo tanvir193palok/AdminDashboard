@@ -1,0 +1,137 @@
+trigger:
+  branches:
+    include:
+      - main
+      - dev
+pr:
+  branches:
+    include:
+      - main
+      - dev
+
+pool:
+  vmImage: "ubuntu-latest"
+
+stages:
+  ################ FOR DEVELOPMENT  ################
+  - stage: BINDROCKET_ADMIN_FRONTEND_FOR_DEVELOPMENT
+    displayName: "Build and Deploy to BindRocket Admin Frontend Development"
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/dev')
+    variables:
+      - group: bindrocket_admin_frontend_dev
+    jobs:
+      - job: BindRocket_Admin_Frontend_DEV
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: "3.9"
+              addToPath: true
+
+          - script: |
+              python -m pip install --upgrade pip
+              pip install awscli
+            displayName: "Install AWS CLI"
+
+          - script: |
+              mkdir -p /home/vsts/.aws
+              echo "[default]" > /home/vsts/.aws/credentials
+              echo "aws_access_key_id = $(AWS_ACCESS)" >> /home/vsts/.aws/credentials
+              echo "aws_secret_access_key = $(AWS_SECRET_ACCESS_KEY)" >> /home/vsts/.aws/credentials
+              echo "[default]" > /home/vsts/.aws/config
+              echo "region = $(AWS_REGION)" >> /home/vsts/.aws/config
+            displayName: "Configure AWS CLI"
+
+          - script: |
+              echo "Contents of AWS credentials file:"
+              cat /home/vsts/.aws/credentials | sed 's/.*=\s*\(.\{4\}\).*/&***/'
+              echo "Contents of AWS config file:"
+              cat /home/vsts/.aws/config
+            displayName: "Debug: Check AWS Credentials File"
+
+          - script: |
+              aws ecr get-login-password --region $(AWS_REGION) | docker login --username AWS --password-stdin $(ECR_REPOSITORY)
+            displayName: "Login to AWS ECR"
+
+          - script: |
+              # Build the Docker image
+              # docker build -t $(BINDROCKET_ADMIN_FRONTEND_DEV_IMAGE):$(Build.BuildId) .
+
+              docker build --build-arg NODE_ENV=dev -t $(BINDROCKET_ADMIN_FRONTEND_DEV_IMAGE):$(Build.BuildId) .
+
+              # Tag the image for ECR
+              docker tag $(BINDROCKET_ADMIN_FRONTEND_DEV_IMAGE):$(Build.BuildId) $(ECR_REPOSITORY)/$(BINDROCKET_ADMIN_FRONTEND_DEV_IMAGE):$(Build.BuildId)
+
+              # Push the image to ECR
+              docker push $(ECR_REPOSITORY)/$(BINDROCKET_ADMIN_FRONTEND_DEV_IMAGE):$(Build.BuildId)
+            displayName: "Build and Push Docker Image to ECR"
+
+          - script: |
+              aws eks update-kubeconfig --name $(CLUSTER_NAME) --region $(AWS_REGION)
+            displayName: "Configure kubectl for dev"
+
+          - script: |
+              envsubst < ./k8s/deployments/deployment-dev.tlp.yml > ./k8s/deployments/deployment-dev.yml
+              sed -i 's/BUILD_NUMBER_PLACEHOLDER/$(Build.BuildId)/g' ./k8s/deployments/deployment-dev.yml
+              kubectl apply -f ./k8s/deployments/deployment-dev.yml
+            displayName: "Deploy to BindRocket Admin Frontend Development"
+
+  ################ FOR PRODUCTION  ################
+  - stage: BindRocket_Admin_Frontend_FOR_PRODUCTION
+    displayName: "Build and Deploy to BindRocket Admin Frontend Production"
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+    variables:
+      - group: bindrocket_admin_frontend_prod
+    jobs:
+      - job: BindRocket_Admin_Frontend_PROD
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: "3.9"
+              addToPath: true
+
+          - script: |
+              python -m pip install --upgrade pip
+              pip install awscli
+            displayName: "Install AWS CLI"
+
+          - script: |
+              mkdir -p /home/vsts/.aws
+              echo "[default]" > /home/vsts/.aws/credentials
+              echo "aws_access_key_id = $(AWS_ACCESS)" >> /home/vsts/.aws/credentials
+              echo "aws_secret_access_key = $(AWS_SECRET_ACCESS_KEY)" >> /home/vsts/.aws/credentials
+              echo "[default]" > /home/vsts/.aws/config
+              echo "region = $(AWS_REGION)" >> /home/vsts/.aws/config
+            displayName: "Configure AWS CLI"
+
+          - script: |
+              echo "Contents of AWS credentials file:"
+              cat /home/vsts/.aws/credentials | sed 's/.*=\s*\(.\{4\}\).*/&***/'
+              echo "Contents of AWS config file:"
+              cat /home/vsts/.aws/config
+            displayName: "Debug: Check AWS Credentials File"
+
+          - script: |
+              aws ecr get-login-password --region $(AWS_REGION) | docker login --username AWS --password-stdin $(ECR_REPOSITORY)
+            displayName: "Login to AWS ECR"
+
+          - script: |
+              # Build the Docker image
+              # docker build -t $(BINDROCKET_ADMIN_FRONTEND_PROD_IMAGE):$(Build.BuildId) .
+              docker build --build-arg NODE_ENV=prod -t $(BINDROCKET_ADMIN_FRONTEND_PROD_IMAGE):$(Build.BuildId) .
+
+              # Tag the image for ECR
+              docker tag $(BINDROCKET_ADMIN_FRONTEND_PROD_IMAGE):$(Build.BuildId) $(ECR_REPOSITORY)/$(BINDROCKET_ADMIN_FRONTEND_PROD_IMAGE):$(Build.BuildId)
+
+              # Push the image to ECR
+              docker push $(ECR_REPOSITORY)/$(BINDROCKET_ADMIN_FRONTEND_PROD_IMAGE):$(Build.BuildId)
+            displayName: "Build and Push Docker Image to ECR"
+
+          - script: |
+              aws eks update-kubeconfig --name $(CLUSTER_NAME) --region $(AWS_REGION)
+            displayName: "Configure kubectl for Prod"
+
+          - script: |
+              envsubst < ./k8s/deployments/deployment-prod.tlp.yml > ./k8s/deployments/deployment-prod.yml
+              sed -i 's/BUILD_NUMBER_PLACEHOLDER/$(Build.BuildId)/g' ./k8s/deployments/deployment-prod.yml
+              kubectl apply -f ./k8s/deployments/deployment-prod.yml
+            displayName: "Deploy to BindRocket Admin Frontend Production"
