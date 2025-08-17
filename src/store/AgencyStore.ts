@@ -59,11 +59,11 @@ export const useAgencyStore = create<AgencyStoreState>((set) => ({
   agencies: [],
   loading: false,
   error: null,
-  
+
   /* eslint-disable @typescript-eslint/no-explicit-any */
 
   fetchAgencies: async () => {
-    const API_BASE_URL = "https://dev-api.bindrocket.com";
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     set({ loading: true, error: null });
     try {
       const res = await axios.get(`${API_BASE_URL}/api/admin/overview`);
