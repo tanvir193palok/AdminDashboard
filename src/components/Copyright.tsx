@@ -8,7 +8,7 @@ const Copyright = () => {
           href="https://www.agentsandcarriers.com/"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-green-600 hover:underline"
+          className="text-[#00B67A] hover:underline"
         >
           A&C Inc
         </a>
