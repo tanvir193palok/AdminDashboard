@@ -31,9 +31,15 @@ const LoginPage = () => {
     setError("");
 
     setTimeout(() => {
-      console.log("Submitted credentials:", credentials);
+      const { email, password } = credentials;
 
-      navigate("/");
+      if (email === "info@bindrocket.com" && password === "123@456") {
+        localStorage.setItem("auth", "true"); 
+        navigate("/");
+      } else {
+        setError("Invalid email or password");
+      }
+
       setIsLoading(false);
     }, 800);
   };
