@@ -26,6 +26,21 @@ const AgencySection = () => {
     "All time",
   ];
 
+  // ✅ Sort agencies by StartDate (newest first)
+  const sortedAgencies = [...agencies].sort(
+    (a, b) => new Date(b.StartDate).getTime() - new Date(a.StartDate).getTime()
+  );
+
+  // ✅ Format date nicely
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "";
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
   return (
     <div className="bg-white p-4 rounded-xl mt-4 border border-gray-200">
       <div className="flex justify-between items-center mb-4">
@@ -49,19 +64,18 @@ const AgencySection = () => {
               <th className="py-3 px-4">Agents</th>
               <th className="py-3 px-4">Leads</th>
               <th className="py-3 px-4">Plan</th>
+              <th className="py-3 px-4">Start Date</th> {/* ✅ New Column */}
               <th className="py-3 px-4 text-center">Status</th>
             </tr>
           </thead>
           <tbody>
-            {agencies.map((agency, index) => (
+            {sortedAgencies.map((agency, index) => (
               <tr
                 key={agency.Id}
                 className="border-b last:border-0 text-sm font-medium text-gray-600 hover:bg-gray-50"
               >
                 <td className="py-3 px-4">{index + 1}</td>
-                <td className="py-3 px-4 flex items-center gap-3">
-                  {agency.AgencyName}
-                </td>
+                <td className="py-3 px-4">{agency.AgencyName}</td>
                 <td className="py-3 px-4">
                   {agency.Address || agency.City || agency.State || agency.Zip
                     ? `${agency.Address ?? ""}${
@@ -75,6 +89,7 @@ const AgencySection = () => {
                 <td className="py-3 px-4">{agency.totalAgents} Agents</td>
                 <td className="py-3 px-4">{agency.totalLeads}</td>
                 <td className="py-3 px-4">{agency.subscriptionPlan}</td>
+                <td className="py-3 px-4">{formatDate(agency.StartDate)}</td>
                 <td className="py-3 px-4 text-center">
                   <span className="bg-primary text-white text-xs px-4 py-1 rounded-full">
                     {agency.Status}

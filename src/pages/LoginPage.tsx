@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Copyright from "../components/Copyright";
-import logo from "../assets/l.svg";
+import logo from "../assets/sub_logo.svg";
 
 const LoginPage = () => {
   const navigate = useNavigate();

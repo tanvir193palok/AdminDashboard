@@ -55,7 +55,7 @@ const LeadsByAgency = () => {
   const sortedData =
     agencies
       ?.sort((a, b) => b.totalLeads - a.totalLeads)
-      .slice(0, 5)
+      .slice(0, 10)
       .map((agency) => ({
         name: agency.AgencyName,
         leads: agency.totalLeads,
@@ -66,7 +66,7 @@ const LeadsByAgency = () => {
   return (
     <div className="relative bg-white p-5 rounded-lg h-[500px] shadow-sm mt-4">
       <p className="text-lg 3xl:text-xl font-bold mb-6">
-        Leads by Agency(Top 5)
+        Leads by Agency(Top 10)
       </p>
       <select className="absolute top-5 right-5 border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring focus:ring-blue-300">
         <option>All Time</option>
